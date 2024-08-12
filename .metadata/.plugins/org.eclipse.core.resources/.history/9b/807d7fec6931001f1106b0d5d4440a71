@@ -1,0 +1,92 @@
+package com.example.demo.soap;
+
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFactory;
+import javax.xml.soap.SOAPHeader;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.soap.SOAPHandler;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
+import java.util.Set;
+
+public class AuthHandler implements SOAPHandler<SOAPMessageContext> {
+
+    private static final String USERNAME = "your_username";
+    private static final String PASSWORD = "your_password";
+
+    @Override
+    public boolean handleMessage(SOAPMessageContext context) {
+        Boolean outboundProperty = (Boolean) context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+
+        if (!outboundProperty) {
+            try {
+                SOAPMessage message = context.getMessage();
+                SOAPHeader header = message.getSOAPHeader();
+
+                if (header == null) {
+                    SOAPFactory soapFactory = SOAPFactory.newInstance();
+                    header = soapFactory.createSOAPHeader(message.getSOAPPart());
+                }
+
+                String username = getUsername(header);
+                String password = getPassword(header);
+
+                if (!authenticate(username, password)) {
+                    SOAPFactory soapFactory = SOAPFactory.newInstance();
+                    SOAPHeader soapHeader = soapFactory.createSOAPHeader(message.getSOAPPart());
+                    soapHeader.detachNode();
+
+                    QName faultCode = new QName("http://schemas.xmlsoap.org/soap/envelope/", "Client.Authentication");
+                    message.getSOAPBody().addFault(faultCode, "Invalid Username or Password");
+                    message.saveChanges();
+
+                    return false;
+                }
+
+            } catch (SOAPException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return true;
+    }
+
+    private String getUsername(SOAPHeader header) throws SOAPException {
+        if (header != null) {
+            SOAPHeaderElement usernameElement = (SOAPHeaderElement) header.getElementsByTagName("Username").item(0);
+            if (usernameElement != null) {
+                return usernameElement.getValue();
+            }
+        }
+        return null;
+    }
+
+    private String getPassword(SOAPHeader header) throws SOAPException {
+        if (header != null) {
+            SOAPHeaderElement passwordElement = (SOAPHeaderElement) header.getElementsByTagName("Password").item(0);
+            if (passwordElement != null) {
+                return passwordElement.getValue();
+            }
+        }
+        return null;
+    }
+
+    private boolean authenticate(String username, String password) {
+        return USERNAME.equals(username) && PASSWORD.equals(password);
+    }
+
+    @Override
+    public boolean handleFault(SOAPMessageContext context) {
+        return true;
+    }
+
+    @Override
+    public void close(MessageContext context) {
+    }
+
+    @Override
+    public Set<QName> getHeaders() {
+        return null;
+    }
+}

@@ -1,0 +1,5 @@
+INDEX VERSION 1.4+C:\Users\del\Desktop\Apsar\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
+1043762333.index
+1350050997.index
+1358874726.index
+4247094940.index

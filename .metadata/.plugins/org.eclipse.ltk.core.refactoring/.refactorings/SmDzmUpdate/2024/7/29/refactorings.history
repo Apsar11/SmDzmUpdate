@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Encapsulate field &apos;com.resource.Message.result&apos; in &apos;com.resource.Message&apos;&#x0D;&#x0A;- Original project: &apos;SmDzmUpdate&apos;&#x0D;&#x0A;- Original element: &apos;com.resource.Message.result&apos;&#x0D;&#x0A;- Getter method name: &apos;getResult&apos;&#x0D;&#x0A;- Setter method name: &apos;setResult&apos;&#x0D;&#x0A;- Field visibility: &apos;public&apos;&#x0D;&#x0A;- Use getter and setter methods in declaring type" comments="false" declaring="true" description="Encapsulate field &apos;result&apos;" flags="589830" getter="getResult" id="org.eclipse.jdt.ui.self.encapsulate" input="/src&lt;com.resource{Message.java[Message^result" insertion="4" setter="setResult" stamp="1721374026150" version="1.0" visibility="1"/>
+</session>

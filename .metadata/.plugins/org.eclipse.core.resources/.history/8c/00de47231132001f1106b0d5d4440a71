@@ -1,0 +1,21 @@
+package com.resource;
+
+import javax.xml.ws.handler.Handler;
+import javax.xml.ws.handler.HandlerResolver;
+import javax.xml.ws.handler.PortInfo;
+import java.util.ArrayList;
+import java.util.List;
+
+public class MyHandlerResolver implements HandlerResolver {
+
+	@Override
+	public List<Handler> getHandlerChain(PortInfo portInfo) {
+		List<Handler> handlerChain = new ArrayList<>();
+
+		// Add your handlers to the handler chain
+		handlerChain.add(new UsernameTokenHandler()); // Example authentication handler
+		// Add more handlers as needed
+
+		return handlerChain;
+	}
+}

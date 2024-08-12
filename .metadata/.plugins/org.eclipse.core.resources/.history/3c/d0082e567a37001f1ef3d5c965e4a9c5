@@ -1,0 +1,34 @@
+package com.resource;
+
+import javax.xml.ws.Endpoint;
+import javax.xml.ws.Binding;
+import javax.xml.ws.handler.Handler;
+import javax.xml.ws.soap.SOAPBinding;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ServerPublisher {
+
+	public static void main(String[] args) {
+		String address = "http://localhost:8080/carInterface";
+
+		try {
+			Endpoint endpoint = Endpoint.create(new Car());
+
+			// Configure handler chain
+			Binding binding = endpoint.getBinding();
+			List<Handler> handlerChain = binding.getHandlerChain();
+			if (handlerChain == null) {
+				handlerChain = new ArrayList<>();
+			}
+			handlerChain.add(new AuthHandler());
+			binding.setHandlerChain(handlerChain);
+
+			// Publish the endpoint
+			endpoint.publish(address);
+			System.out.println("Service is published at " + address);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+}

@@ -1,0 +1,84 @@
+package com.resource;
+
+import java.util.Iterator;
+import java.util.Set;
+
+import javax.security.auth.callback.Callback;
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPElement;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPHeader;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.handler.Handler;
+import javax.xml.ws.handler.HandlerResolver;
+import javax.xml.ws.handler.PortInfo;
+import javax.xml.ws.handler.soap.SOAPHandler;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
+import javax.xml.ws.Endpoint;
+import javax.xml.ws.WebServiceException;
+
+import org.apache.wss4j.common.ext.WSPasswordCallback;
+import org.w3c.dom.NodeList;
+
+public class SecurityHandler implements SOAPHandler<SOAPMessageContext> {
+
+    @Override
+    public boolean handleMessage(SOAPMessageContext context) {
+        Boolean outboundProperty = (Boolean) context.get(SOAPMessageContext.MESSAGE_OUTBOUND_PROPERTY);
+
+        if (!outboundProperty) {
+            try {
+                SOAPMessage soapMessage = context.getMessage();
+                SOAPHeader header = soapMessage.getSOAPHeader();
+                
+                if (header == null) {
+                    throw new SOAPException("No SOAP header.");
+                }
+
+                NodeList securityHeader = header.getElementsByTagNameNS("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "Security");
+                if (securityHeader.getLength() == 0) {
+                    throw new SOAPException("No Security header.");
+                }
+
+                NodeList usernameToken = ((SOAPElement)securityHeader.item(0)).getElementsByTagNameNS("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "UsernameToken");
+                if (usernameToken.getLength() == 0) {
+                    throw new SOAPException("No UsernameToken in Security header.");
+                }
+
+                NodeList username = ((SOAPElement)usernameToken.item(0)).getElementsByTagNameNS("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "Username");
+                NodeList password = ((SOAPElement)usernameToken.item(0)).getElementsByTagNameNS("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "Password");
+                
+                if (username.getLength() == 0 || password.getLength() == 0) {
+                    throw new SOAPException("Missing Username or Password in UsernameToken.");
+                }
+
+                String receivedUsername = username.item(0).getTextContent();
+                String receivedPassword = password.item(0).getTextContent();
+                
+                // Validate the token using the password callback handler
+                ServerPasswordCallback passwordCallback = new ServerPasswordCallback();
+                WSPasswordCallback callback = new WSPasswordCallback(receivedUsername, receivedPassword, receivedPassword, WSPasswordCallback.USERNAME_TOKEN);
+                passwordCallback.handle(new Callback[]{callback});
+                
+            } catch (Exception e) {
+                throw new WebServiceException(e);
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean handleFault(SOAPMessageContext context) {
+        return true;
+    }
+
+    @Override
+    public void close(javax.xml.ws.handler.MessageContext context) {
+    }
+
+    @Override
+    public Set<QName> getHeaders() {
+        return null;
+    }
+}

@@ -1,0 +1,89 @@
+package com.resource;
+
+
+
+import java.util.Iterator;
+import java.util.Set;
+
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPElement;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPHeader;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.WebServiceException;
+import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.soap.SOAPHandler;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
+
+import org.apache.axis.encoding.Callback;
+import org.apache.axis.soap.SOAPConstants;
+import org.apache.wss4j.common.WSS4JConstants;
+import org.apache.wss4j.common.ext.WSPasswordCallback;
+import org.apache.wss4j.dom.handler.RequestData;
+import org.apache.wss4j.policy.model.UsernameToken;
+
+	public class SecurityHandler implements SOAPHandler<SOAPMessageContext> {
+
+	    @Override
+	    public boolean handleMessage(SOAPMessageContext context) {
+	        Boolean outboundProperty = (Boolean) context.get(SOAPMessageContext.MESSAGE_OUTBOUND_PROPERTY);
+
+	        if (!outboundProperty) {
+	            try {
+	                SOAPMessage soapMessage = context.getMessage();
+	                SOAPHeader header = soapMessage.getSOAPHeader();
+	                
+	                if (header == null) {
+	                    throw new SOAPException("No SOAP header.");
+	                }
+	                
+	                Iterator<?> headerElements = header.extractHeaderElements(SOAPConstants.URI_SOAP_ACTOR_NEXT);
+	                if (!headerElements.hasNext()) {
+	                    throw new SOAPException("No header block for next actor.");
+	                }
+	                
+	                SOAPElement securityHeader = (SOAPElement) headerElements.next();
+	                Iterator<?> tokens = securityHeader.getChildElements(new QName(WSS4JConstants.WSSE_NS, "UsernameToken"));
+	                
+	                if (!tokens.hasNext()) {
+	                    throw new SOAPException("No UsernameToken in header.");
+	                }
+	                
+	                SOAPElement tokenElement = (SOAPElement) tokens.next();
+	                UsernameToken token = new UsernameToken(tokenElement, false, new RequestData());
+	                
+	                String username = token.getName();
+	                String password = token.getPassword();
+	                
+	                // Validate the token using the password callback handler
+	                Callback callback = new WSPasswordCallback(username, WSPasswordCallback.USERNAME_TOKEN);
+	                callback.setPassword(password);
+	                ServerPasswordCallback passwordCallback = new ServerPasswordCallback();
+	                passwordCallback.handle(new Callback[]{callback});
+	                
+	            } catch (Exception e) {
+	                throw new WebServiceException(e);
+	            }
+	        }
+
+	        return true;
+	    }
+
+	    @Override
+	    public boolean handleFault(SOAPMessageContext context) {
+	        return true;
+	    }
+
+	    @Override
+	    public void close(MessageContext context) {
+	    }
+
+	    @Override
+	    public Set<QName> getHeaders() {
+	        return null;
+	    }
+
+	
+	}
+
+

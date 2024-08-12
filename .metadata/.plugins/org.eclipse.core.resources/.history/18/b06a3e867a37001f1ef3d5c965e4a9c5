@@ -1,0 +1,40 @@
+package com.resource;
+
+import javax.xml.ws.Endpoint;
+import javax.xml.ws.Binding;
+import javax.xml.ws.handler.Handler;
+import javax.xml.ws.handler.HandlerResolver;
+import javax.xml.ws.handler.PortInfo;
+import javax.xml.ws.soap.SOAPBinding;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ServerPublisher {
+
+    public static void main(String[] args) {
+        String address = "http://localhost:8080/SmDzmUpdate/services/Car";
+
+        try {
+            Endpoint endpoint = Endpoint.create(new Car());
+
+            // Configure handler chain
+            Binding binding = endpoint.getBinding();
+            if (binding instanceof SOAPBinding) {
+                List<Handler> handlerChain = new ArrayList<>();
+                handlerChain.add(new AuthHandler());
+
+                // Set handler chain resolver
+                ((SOAPBinding) binding).setHandlerChain(handlerChain);
+            } else {
+                System.err.println("Cannot set handler chain on non-SOAP binding.");
+                return;
+            }
+
+            // Publish the endpoint
+            endpoint.publish(address);
+            System.out.println("Service is published at " + address);
+        } catch (Exception e) {
+            System.err.println("Error publishing service: " + e.getMessage());
+        }
+    }
+}

@@ -1,0 +1,17 @@
+package com.resource;
+
+import java.util.ArrayList;
+
+import javax.jws.WebMethod;
+import javax.jws.WebService;
+import javax.xml.ws.Response;
+
+@WebService
+public interface CarInterface {
+	
+	@WebMethod
+	public static  Message update(Message unique_id,Message sm,Message dzm) {
+		return unique_id,sm;
+	}
+
+}

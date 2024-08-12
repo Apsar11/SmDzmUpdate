@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><!-- Use this file to deploy some handlers/chains and services      --><!-- Two ways to do this:                                           --><!--   java org.apache.axis.client.AdminClient deploy.wsdd          --><!--      after the axis server is running                          --><!-- or                                                             --><!--   java org.apache.axis.utils.Admin client|server deploy.wsdd   --><!--      from the same directory that the Axis engine runs         --><deployment xmlns="http://xml.apache.org/axis/wsdd/" xmlns:java="http://xml.apache.org/axis/wsdd/providers/java">
+
+  <!-- Services from ServerPublisherService WSDL service -->
+
+  <service name="ServerPublisher" provider="java:RPC" style="wrapped" use="literal">
+      <parameter name="wsdlTargetNamespace" value="http://resource.com"/>
+      <parameter name="wsdlServiceElement" value="ServerPublisherService"/>
+      <parameter name="schemaQualified" value="http://resource.com"/>
+      <parameter name="wsdlServicePort" value="ServerPublisher"/>
+      <parameter name="className" value="com.resource.ServerPublisher"/>
+      <parameter name="wsdlPortType" value="ServerPublisher"/>
+      <parameter name="typeMappingVersion" value="1.2"/>
+      <operation xmlns:operNS="http://resource.com" name="main" qname="operNS:main" soapAction="">
+        <parameter xmlns:pns="http://resource.com" xmlns:tns="http://www.w3.org/2001/XMLSchema" qname="pns:args" type="tns:string"/>
+      </operation>
+      <operation xmlns:operNS="http://resource.com" xmlns:retNS="http://resource.com" xmlns:rtns="http://www.w3.org/2001/XMLSchema" name="update" qname="operNS:update" returnQName="retNS:updateReturn" returnType="rtns:string" soapAction="">
+        <parameter xmlns:pns="http://resource.com" xmlns:tns="http://www.w3.org/2001/XMLSchema" qname="pns:unique_id" type="tns:string"/>
+        <parameter xmlns:pns="http://resource.com" xmlns:tns="http://www.w3.org/2001/XMLSchema" qname="pns:sm" type="tns:string"/>
+        <parameter xmlns:pns="http://resource.com" xmlns:tns="http://www.w3.org/2001/XMLSchema" qname="pns:dzm" type="tns:string"/>
+      </operation>
+      <parameter name="allowedMethods" value="update main"/>
+
+  </service>
+</deployment>

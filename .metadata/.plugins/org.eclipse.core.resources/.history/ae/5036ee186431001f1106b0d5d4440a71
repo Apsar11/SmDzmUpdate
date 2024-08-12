@@ -1,0 +1,29 @@
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
+import javax.xml.namespace.QName;
+import javax.xml.ws.Service;
+import java.net.URL;
+
+public class SoapClient {
+    private static final String WSDL_URL = "http://example.com/soap?wsdl";
+    private static final String NAMESPACE_URI = "http://example.com/namespace";
+    private static final String SERVICE_NAME = "YourServiceName";
+    private static final String PORT_NAME = "YourPortName";
+    private static final String SOAP_USER = "your_soap_user";
+    private static final String SOAP_PASSWORD = "your_soap_password";
+
+    static {
+        Authenticator.setDefault(new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(SOAP_USER, SOAP_PASSWORD.toCharArray());
+            }
+        });
+    }
+
+    public YourServiceInterface getService() throws Exception {
+        URL wsdlUrl = new URL(WSDL_URL);
+        QName serviceQName = new QName(NAMESPACE_URI, SERVICE_NAME);
+        Service service = Service.create(wsdlUrl, serviceQName);
+        return service.getPort(new QName(NAMESPACE_URI, PORT_NAME), YourServiceInterface.class);
+    }
+}

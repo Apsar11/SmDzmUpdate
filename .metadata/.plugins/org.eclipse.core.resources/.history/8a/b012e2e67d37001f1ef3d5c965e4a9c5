@@ -1,0 +1,156 @@
+package com.resource;
+
+import javax.xml.namespace.QName;
+import javax.xml.soap.*;
+import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.soap.SOAPHandler;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
+import javax.xml.ws.soap.SOAPFaultException;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+public class AuthHandler implements SOAPHandler<SOAPMessageContext> {
+
+	private static final String USERNAME = "Apsar";
+	private static final String PASSWORD = "Apsar@11";
+
+	@Override
+	public boolean handleMessage(SOAPMessageContext context) {
+		Boolean outboundProperty = (Boolean) context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+
+		if (!outboundProperty) {
+			try {
+				SOAPMessage soapMessage = context.getMessage();
+				SOAPHeader soapHeader = soapMessage.getSOAPHeader();
+
+				if (soapHeader == null) {
+					generateSOAPFaultMessage(soapMessage, "No SOAP header.");
+					return false;
+				}
+
+				// Check mustUnderstand attribute
+				Iterator<?> headerElements = soapHeader.examineAllHeaderElements();
+				while (headerElements.hasNext()) {
+					SOAPHeaderElement headerElement = (SOAPHeaderElement) headerElements.next();
+					if (headerElement.getMustUnderstand()) {
+						if (!handleMustUnderstandHeader(headerElement)) {
+							generateSOAPFaultMessage(soapMessage,
+									"Header not understood: " + headerElement.getElementName());
+							return false;
+						}
+					}
+				}
+
+				SOAPElement securityElement = extractSecurityHeader(soapHeader);
+				String username = getUsername(securityElement);
+				String password = getPassword(securityElement);
+
+				if (authenticate(username, password)) {
+					System.out.println("Authentication successful for user: " + username);
+					return true;
+				} else {
+					generateSOAPFaultMessage(soapMessage, "Authentication failed.");
+					return false;
+				}
+
+			} catch (SOAPException e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean handleMustUnderstandHeader(SOAPHeaderElement headerElement) {
+
+		System.out.println("Handling mustUnderstand header" + headerElement.getElementName());
+		System.out.println("Handling local name" + headerElement.getLocalName());
+		System.out.println("Handling local name" + headerElement.getNamespaceURI());
+		if ("Security".equals(headerElement.getLocalName())
+				&& "http://resource.com/security".equals(headerElement.getNamespaceURI())) {
+			try {
+				Iterator<?> childElements = headerElement.getChildElements();
+
+				boolean usernameFound = false;
+				boolean passwordFound = false;
+
+				while (childElements.hasNext()) {
+					SOAPElement element = (SOAPElement) childElements.next();
+					if ("Username".equals(element.getLocalName())) {
+						usernameFound = true;
+					}
+					if ("Password".equals(element.getLocalName())) {
+						passwordFound = true;
+					}
+				}
+
+				return usernameFound && passwordFound;
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
+		return false;
+	}
+
+	private SOAPElement extractSecurityHeader(SOAPHeader soapHeader) throws SOAPException {
+		Iterator<?> headerElements = soapHeader.getChildElements(new QName("http://resource.com/security", "Security"));
+		if (headerElements.hasNext()) {
+			return (SOAPElement) headerElements.next();
+		}
+		throw new SOAPException("No Security header found.");
+	}
+
+	private String getUsername(SOAPElement securityElement) throws SOAPException {
+		Iterator<?> elements = securityElement.getChildElements(new QName("Username"));
+		if (elements.hasNext()) {
+			SOAPElement usernameElement = (SOAPElement) elements.next();
+			return usernameElement.getValue();
+		}
+		throw new SOAPException("No Username element found");
+	}
+
+	private String getPassword(SOAPElement securityElement) throws SOAPException {
+		Iterator<?> elements = securityElement.getChildElements(new QName("Password"));
+		if (elements.hasNext()) {
+			SOAPElement passwordElement = (SOAPElement) elements.next();
+			return passwordElement.getValue();
+		}
+		throw new SOAPException("No Password element found");
+	}
+
+	private boolean authenticate(String username, String password) {
+		return USERNAME.equals(username) && PASSWORD.equals(password);
+	}
+
+	private void generateSOAPFaultMessage(SOAPMessage message, String reason) {
+		try {
+			SOAPBody soapBody = message.getSOAPBody();
+			SOAPFault fault = soapBody.addFault();
+			fault.setFaultString(reason);
+			throw new SOAPFaultException(fault);
+		} catch (SOAPException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public boolean handleFault(SOAPMessageContext context) {
+		return true;
+	}
+
+	@Override
+	public void close(MessageContext context) {
+	}
+
+	@Override
+	public Set<QName> getHeaders() {
+		QName securityHeader = new QName(
+				"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "Security");
+		HashSet<QName> headers = new HashSet<QName>();
+		headers.add(securityHeader);
+		return headers;
+	}
+}

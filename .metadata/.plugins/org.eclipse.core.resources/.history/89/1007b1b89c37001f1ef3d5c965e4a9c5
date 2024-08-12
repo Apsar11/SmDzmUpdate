@@ -1,0 +1,107 @@
+package com.resource;
+
+import javax.xml.namespace.QName;
+import javax.xml.soap.*;
+import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.soap.SOAPHandler;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
+import javax.xml.ws.soap.SOAPFaultException;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+public class AuthHandler implements SOAPHandler<SOAPMessageContext> {
+
+	private static final String USERNAME = "Apsar";
+	private static final String PASSWORD = "Apsar@11";
+
+	@Override
+	public Set<QName> getHeaders() {
+		QName securityHeader = new QName(
+				"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd","http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "Security");
+		HashSet<QName> headers = new HashSet<QName>();
+		headers.add(securityHeader);
+		return headers; // Indicating that all headers are handled by this handler
+	}
+
+	@Override
+	public boolean handleMessage(SOAPMessageContext context) {
+		Boolean outboundProperty = (Boolean) context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+
+		if (!outboundProperty) {
+			try {
+				SOAPMessage soapMessage = context.getMessage();
+				SOAPHeader soapHeader = soapMessage.getSOAPHeader();
+
+				if (soapHeader == null) {
+					generateSOAPFaultMessage(soapMessage, "No SOAP header.");
+					return false;
+				}
+
+				// Extract Security header
+				Iterator<?> securityHeaders = soapHeader.getChildElements(
+						new QName("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+								"Security"));
+				if (!securityHeaders.hasNext()) {
+					generateSOAPFaultMessage(soapMessage, "No Security header.");
+					return false;
+				}
+				SOAPElement securityElement = (SOAPElement) securityHeaders.next();
+
+				// Extract UsernameToken
+				Iterator<?> usernameTokens = securityElement.getChildElements(
+						new QName("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+								"UsernameToken"));
+				if (!usernameTokens.hasNext()) {
+					generateSOAPFaultMessage(soapMessage, "No UsernameToken found in Security header.");
+					return false;
+				}
+				SOAPElement usernameTokenElement = (SOAPElement) usernameTokens.next();
+
+				// Extract Username and Password
+				String username = usernameTokenElement.getElementsByTagName("Username").item(0).getTextContent();
+				String password = usernameTokenElement.getElementsByTagName("Password").item(0).getTextContent();
+
+				// Validate credentials
+				if (authenticate(username, password)) {
+					System.out.println("Authentication successful for user: " + username);
+					return true;
+				} else {
+					generateSOAPFaultMessage(soapMessage, "Authentication failed.");
+					return false;
+				}
+
+			} catch (SOAPException e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean authenticate(String username, String password) {
+		return USERNAME.equals(username) && PASSWORD.equals(password);
+	}
+
+	private void generateSOAPFaultMessage(SOAPMessage message, String reason) {
+		try {
+			SOAPBody soapBody = message.getSOAPBody();
+			SOAPFault fault = soapBody.addFault();
+			fault.setFaultString(reason);
+			throw new SOAPFaultException(fault);
+		} catch (SOAPException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public boolean handleFault(SOAPMessageContext context) {
+		return true;
+	}
+
+	@Override
+	public void close(MessageContext context) {
+	}
+
+}

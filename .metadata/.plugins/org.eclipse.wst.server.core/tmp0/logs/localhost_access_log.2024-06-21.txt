@@ -1,0 +1,6 @@
+127.0.0.1 - - [21/Jun/2024:11:34:13 +0530] "GET / HTTP/1.1" 404 751
+127.0.0.1 - - [21/Jun/2024:11:34:19 +0530] "POST /SmDzmUpdate/services/Car HTTP/1.1" 500 627
+127.0.0.1 - - [21/Jun/2024:11:34:58 +0530] "GET / HTTP/1.1" 404 751
+127.0.0.1 - - [21/Jun/2024:11:34:58 +0530] "POST /SmDzmUpdate/services/AdminService HTTP/1.0" 200 291
+127.0.0.1 - - [21/Jun/2024:11:34:58 +0530] "POST /SmDzmUpdate/services/AdminService HTTP/1.0" 200 4213
+127.0.0.1 - - [21/Jun/2024:11:35:15 +0530] "POST /SmDzmUpdate/services/Car HTTP/1.1" 200 379

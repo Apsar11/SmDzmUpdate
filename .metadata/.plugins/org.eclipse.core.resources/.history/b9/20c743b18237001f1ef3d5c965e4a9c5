@@ -1,0 +1,40 @@
+package com.resource;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.wsdl.Binding;
+import javax.xml.ws.Endpoint;
+import javax.xml.ws.handler.Handler;
+
+public class ServerPublisher {
+
+    public static void main(String[] args) {
+        String address = "http://localhost:8080/carInterface";
+
+        try {
+            // Create an instance of your service implementation
+            Car carService = new Car();
+
+            // Create an Endpoint with your service implementation
+            Endpoint endpoint = Endpoint.create(carService);
+
+            // Configure handler chain
+         // Configure handler chain
+            javax.xml.ws.Binding binding = endpoint.getBinding();
+            List<Handler> handlerChain = binding.getHandlerChain();
+            if (handlerChain == null) {
+                handlerChain = new ArrayList<>();
+            }
+            handlerChain.add(new AuthHandler()); // Add your AuthHandler to the chain
+            binding.setHandlerChain(handlerChain);
+
+            // Publish the endpoint
+            endpoint.publish(address);
+            System.out.println("Service is published at " + address);
+        } catch (Exception e) {
+            System.out.println("Error publishing service: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}

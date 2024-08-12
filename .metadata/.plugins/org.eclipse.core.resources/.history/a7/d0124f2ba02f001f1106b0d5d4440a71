@@ -1,0 +1,39 @@
+package com.resource;
+
+
+
+	import java.io.IOException;
+	import java.util.HashMap;
+	import java.util.Map;
+	import javax.security.auth.callback.Callback;
+	import javax.security.auth.callback.CallbackHandler;
+	import javax.security.auth.callback.UnsupportedCallbackException;
+	import org.apache.wss4j.common.ext.WSPasswordCallback;
+
+	public class ServerPasswordCallback implements CallbackHandler {
+
+	    private Map<String, String> passwords = new HashMap<>();
+
+	    public ServerPasswordCallback() {
+	        passwords.put("admin", "password");
+	    }
+
+	    @Override
+	    public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+	        for (Callback callback : callbacks) {
+	            if (callback instanceof WSPasswordCallback) {
+	                WSPasswordCallback pc = (WSPasswordCallback) callback;
+
+	                String pass = passwords.get(pc.getIdentifier());
+	                if (pass != null) {
+	                    pc.setPassword(pass);
+	                    return;
+	                }
+	            }
+	        }
+	        throw new IOException("Authentication failed");
+	    }
+	}
+
+
+}

@@ -1,0 +1,35 @@
+package com.resource;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.xml.ws.Endpoint;
+import javax.xml.ws.handler.Handler;
+
+public class ServerPublisher {
+
+	public static void main(String[] args) {
+		String address = "http://localhost:8080/SmDzmUpdate/services/Car";
+
+		try {
+
+			Car carService = new Car();
+
+			Endpoint endpoint = Endpoint.create(carService);
+
+			javax.xml.ws.Binding binding = endpoint.getBinding();
+			List<Handler> handlerChain = binding.getHandlerChain();
+			if (handlerChain == null) {
+				handlerChain = new ArrayList<>();
+			}
+			handlerChain.add(new AuthHandler()); // Add your AuthHandler to the chain
+			binding.setHandlerChain(handlerChain);
+
+			endpoint.publish(address);
+			System.out.println("Service is published at " + address);
+		} catch (Exception e) {
+			System.out.println("Error publishing service: " + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+}

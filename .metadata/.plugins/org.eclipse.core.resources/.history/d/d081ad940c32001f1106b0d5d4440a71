@@ -1,0 +1,78 @@
+package com.resource;
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPHeader;
+import javax.xml.soap.SOAPHeaderElement;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.soap.SOAPHandler;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
+import java.util.Set;
+
+public class UsernameTokenHandler implements SOAPHandler<SOAPMessageContext> {
+
+    private static final String USERNAME = "admin";
+    private static final String PASSWORD = "password";
+
+    @Override
+    public boolean handleMessage(SOAPMessageContext context) {
+        Boolean outbound = (Boolean) context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+
+        if (!outbound) { // Incoming message
+            try {
+                SOAPMessage soapMessage = context.getMessage();
+                SOAPHeader soapHeader = soapMessage.getSOAPHeader();
+
+                if (soapHeader == null) {
+                    throw new SOAPException("No header found in the message.");
+                }
+
+                // Get the Security header element
+                QName securityQName = new QName("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "Security", "wsse");
+                SOAPHeaderElement securityElement = (SOAPHeaderElement) soapHeader.getChildElements(securityQName).next();
+
+                if (securityElement == null) {
+                    throw new SOAPException("No security element found in the message.");
+                }
+
+                // Get UsernameToken element
+                QName usernameTokenQName = new QName("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "UsernameToken", "wsse");
+                SOAPHeaderElement usernameTokenElement = (SOAPHeaderElement) securityElement.getChildElements(usernameTokenQName).next();
+
+                if (usernameTokenElement == null) {
+                    throw new SOAPException("No username token element found in the security header.");
+                }
+
+                // Validate UsernameToken
+                String username = usernameTokenElement.getElementsByTagNameNS("wsse", "Username").item(0).getTextContent();
+                String password = usernameTokenElement.getElementsByTagNameNS("wsse", "Password").item(0).getTextContent();
+
+                if (!USERNAME.equals(username) || !PASSWORD.equals(password)) {
+                    throw new SOAPException("Invalid username or password.");
+                }
+
+                return true;
+
+            } catch (SOAPException e) {
+                System.out.println("Error handling SOAP message: " + e.getMessage());
+                return false;
+            }
+        }
+
+        return true; // For outbound messages, do nothing
+    }
+
+    @Override
+    public boolean handleFault(SOAPMessageContext context) {
+        return true;
+    }
+
+    @Override
+    public void close(MessageContext context) {
+    }
+
+    @Override
+    public Set<QName> getHeaders() {
+        return null;
+    }
+}

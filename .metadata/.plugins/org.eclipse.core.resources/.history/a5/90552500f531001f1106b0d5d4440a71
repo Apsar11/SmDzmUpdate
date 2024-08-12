@@ -1,0 +1,108 @@
+package com.resource;
+
+import javax.xml.namespace.QName;
+import javax.xml.soap.*;
+import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.soap.SOAPHandler;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
+import java.util.Iterator;
+import java.util.Set;
+
+public class AuthHandler implements SOAPHandler<SOAPMessageContext> {
+
+    private static final String USERNAME = "Apsar";
+    private static final String PASSWORD = "Apsar@11";
+
+    @Override
+    public boolean handleMessage(SOAPMessageContext context) {
+        Boolean outboundProperty = (Boolean) context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+
+        if (!outboundProperty) {
+            try {
+                SOAPMessage soapMessage = context.getMessage();
+                SOAPHeader soapHeader = soapMessage.getSOAPHeader();
+
+                if (soapHeader == null) {
+                    throw new SOAPException("No SOAP header.");
+                }
+
+                Iterator<?> headerElements = soapHeader.extractAllHeaderElements();
+                if (headerElements == null || !headerElements.hasNext()) {
+                    throw new SOAPException("No security header.");
+                }
+
+                boolean authenticated = false;
+                while (headerElements.hasNext()) {
+                    SOAPElement element = (SOAPElement) headerElements.next();
+                    if (element.getElementName().getLocalName().equals("Security")) {
+                        String username = getUsername(element);
+                        String password = getPassword(element);
+
+                        if (authenticate(username, password)) {
+                            authenticated = true;
+                            break;
+                        } else {
+                            throw new SOAPException("Invalid Username or Password");
+                        }
+                    }
+                }
+
+                if (!authenticated) {
+                    throw new SOAPException("No valid security header found.");
+                }
+
+            } catch (SOAPException e) {
+                generateSOAPFaultMessage(context.getMessage(), e.getMessage());
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private String getUsername(SOAPElement securityElement) throws SOAPException {
+        Iterator<?> elements = securityElement.getChildElements(new QName("Username"));
+        if (elements.hasNext()) {
+            SOAPElement usernameElement = (SOAPElement) elements.next();
+            return usernameElement.getValue();
+        }
+        throw new SOAPException("No Username element found");
+    }
+
+    private String getPassword(SOAPElement securityElement) throws SOAPException {
+        Iterator<?> elements = securityElement.getChildElements(new QName("Password"));
+        if (elements.hasNext()) {
+            SOAPElement passwordElement = (SOAPElement) elements.next();
+            return passwordElement.getValue();
+        }
+        throw new SOAPException("No Password element found");
+    }
+
+    private boolean authenticate(String username, String password) {
+        return USERNAME.equals(username) && PASSWORD.equals(password);
+    }
+
+    private void generateSOAPFaultMessage(SOAPMessage message, String reason) {
+        try {
+            SOAPBody soapBody = message.getSOAPBody();
+            SOAPFault fault = soapBody.addFault();
+            fault.setFaultString(reason);
+        } catch (SOAPException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public boolean handleFault(SOAPMessageContext context) {
+        return true;
+    }
+
+    @Override
+    public void close(MessageContext context) {
+    }
+
+    @Override
+    public Set<QName> getHeaders() {
+        return null;
+    }
+}

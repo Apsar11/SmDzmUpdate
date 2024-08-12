@@ -1,0 +1,81 @@
+package com.resource;
+package com.example;
+
+import java.io.IOException;
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPEnvelope;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPHeader;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.soap.SOAPHandler;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
+
+public class UsernameTokenHandler implements SOAPHandler<SOAPMessageContext> {
+
+    private static final String USERNAME = "admin";
+    private static final String PASSWORD = "password";
+
+    @Override
+    public boolean handleMessage(SOAPMessageContext context) {
+        Boolean outbound = (Boolean) context.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+
+        if (!outbound) { // Incoming message
+            try {
+                SOAPMessage soapMessage = context.getMessage();
+                SOAPHeader soapHeader = soapMessage.getSOAPHeader();
+                
+                if (soapHeader == null) {
+                    throw new SOAPException("No header found in the message.");
+                }
+                
+                SOAPEnvelope soapEnvelope = soapMessage.getSOAPPart().getEnvelope();
+                String prefix = soapEnvelope.getPrefix();
+                
+                QName securityQName = new QName("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "Security", prefix);
+                
+                SOAPHeaderElement securityElement = (SOAPHeaderElement) soapHeader.getChildElements(securityQName).next();
+                if (securityElement == null) {
+                    throw new SOAPException("No security element found in the message.");
+                }
+                
+                QName usernameTokenQName = new QName("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "UsernameToken", prefix);
+                
+                SOAPHeaderElement usernameTokenElement = (SOAPHeaderElement) securityElement.getChildElements(usernameTokenQName).next();
+                if (usernameTokenElement == null) {
+                    throw new SOAPException("No username token element found in the security header.");
+                }
+                
+                String username = usernameTokenElement.getElementsByTagNameNS(prefix, "Username").item(0).getTextContent();
+                String password = usernameTokenElement.getElementsByTagNameNS(prefix, "Password").item(0).getTextContent();
+                
+                if (!USERNAME.equals(username) || !PASSWORD.equals(password)) {
+                    throw new SOAPException("Invalid username or password.");
+                }
+                
+                return true;
+                
+            } catch (SOAPException | IOException e) {
+                System.out.println("Error handling SOAP message: " + e.getMessage());
+                return false;
+            }
+        }
+
+        return true; // For outbound messages, do nothing
+    }
+
+    @Override
+    public boolean handleFault(SOAPMessageContext context) {
+        return true;
+    }
+
+    @Override
+    public void close(MessageContext context) {
+    }
+
+    @Override
+    public java.util.Set<QName> getHeaders() {
+        return null;
+    }
+}
+

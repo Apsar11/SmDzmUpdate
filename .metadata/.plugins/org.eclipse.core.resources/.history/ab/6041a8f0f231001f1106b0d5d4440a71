@@ -1,0 +1,60 @@
+package com.resource;
+
+import javax.xml.namespace.QName;
+import javax.xml.soap.*;
+
+public class SoapHeader {
+
+	public static void main(String[] args) {
+		try {
+			// Create a SOAP Message
+			MessageFactory messageFactory = MessageFactory.newInstance();
+			SOAPMessage soapMessage = messageFactory.createMessage();
+
+			// Create SOAP Part
+			SOAPPart soapPart = soapMessage.getSOAPPart();
+
+			// Get SOAP Envelope
+			SOAPEnvelope envelope = soapPart.getEnvelope();
+
+			// Get SOAP Header
+			SOAPHeader header = envelope.getHeader();
+			if (header == null) {
+				header = envelope.addHeader();
+			}
+
+			// Add custom SOAP header elements
+			QName securityQName = new QName(
+					"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "Security",
+					"wsse");
+			SOAPHeaderElement securityHeader = header.addHeaderElement(securityQName);
+
+			QName usernameTokenQName = new QName(
+					"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+					"UsernameToken", "wsse");
+			SOAPElement usernameTokenElement = securityHeader.addChildElement(usernameTokenQName);
+
+			QName usernameQName = new QName(
+					"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "Username",
+					"wsse");
+			SOAPElement usernameElement = usernameTokenElement.addChildElement(usernameQName);
+			usernameElement.addTextNode("Apsar");
+
+			QName passwordQName = new QName(
+					"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "Password",
+					"wsse");
+			SOAPElement passwordElement = usernameTokenElement.addChildElement(passwordQName);
+			passwordElement.addTextNode("Apsar@11");
+
+			// Save the message
+			soapMessage.saveChanges();
+
+			// Print the SOAP Message
+			System.out.println("SOAP Message:");
+			soapMessage.writeTo(System.out);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}

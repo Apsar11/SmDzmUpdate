@@ -1,0 +1,28 @@
+package com.resource;
+
+import javax.xml.ws.Endpoint;
+import javax.xml.ws.handler.Handler;
+import javax.xml.ws.handler.HandlerResolver;
+import javax.xml.ws.handler.PortInfo;
+import java.util.List;
+import java.util.ArrayList;
+
+public class MySoapServicePublisher {
+
+	public static void main(String[] args) {
+		MySoapServicePublisher service = new MySoapServicePublisher();
+		Endpoint endpoint = Endpoint.create(service);
+
+		endpoint.setHandlerResolver(new HandlerResolver() {
+			@Override
+			public List<Handler> getHandlerChain(PortInfo portInfo) {
+				List<Handler> handlerChain = new ArrayList<>();
+				handlerChain.add(new SecurityHandler());
+				return handlerChain;
+			}
+		});
+
+		endpoint.publish("http://localhost:8080/MySoapService");
+		System.out.println("SOAP Service published at http://localhost:8080/MySoapService");
+	}
+}

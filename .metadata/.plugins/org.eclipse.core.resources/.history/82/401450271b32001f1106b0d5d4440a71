@@ -1,0 +1,19 @@
+package com.resource;
+
+import javax.xml.ws.Endpoint;
+
+public class MySoapServicePublisher {
+
+    public static void main(String[] args) {
+        CarInterface service = new Car();
+        Endpoint endpoint = Endpoint.create(service);
+
+        // Attach handler resolver to handle incoming SOAP messages
+      //  endpoint.setHandlerResolver(new MyHandlerResolver());
+
+        // Publish the SOAP service
+        endpoint.publish("http://localhost:8080/MySoapService");
+        System.out.println("SOAP Service published at http://localhost:8080/MySoapService");
+    }
+}
+

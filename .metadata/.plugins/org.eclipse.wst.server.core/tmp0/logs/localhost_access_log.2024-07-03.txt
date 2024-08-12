@@ -1,0 +1,5 @@
+127.0.0.1 - - [03/Jul/2024:17:07:47 +0530] "GET / HTTP/1.1" 404 751
+127.0.0.1 - - [03/Jul/2024:17:08:46 +0530] "POST /SmDzmUpdate/services/Car HTTP/1.1" 500 624
+127.0.0.1 - - [03/Jul/2024:18:13:23 +0530] "GET / HTTP/1.1" 404 751
+127.0.0.1 - - [03/Jul/2024:18:14:33 +0530] "POST /InfoPool/services/InfoPool HTTP/1.1" 500 620
+0:0:0:0:0:0:0:1 - - [03/Jul/2024:18:21:52 +0530] "GET /Infopool/search/Infopool/search HTTP/1.1" 404 794

@@ -1,0 +1,83 @@
+package com.resource;
+import org.apache.ws.security.WSSConfig;
+import org.apache.ws.security.WSSecHeader;
+import org.apache.ws.security.WSSecUsernameToken;
+import org.apache.ws.security.message.WSSecHeader;
+import org.apache.ws.security.message.WSSecUsernameToken;
+import org.apache.ws.security.util.WSSecurityUtil;
+
+import javax.xml.soap.*;
+import java.io.ByteArrayOutputStream;
+
+public class WSS4JClient {
+    public static void main(String[] args) {
+        try {
+            // Initialize WSS4J
+            WSSConfig.init();
+
+            // Create a SOAP Connection
+            SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
+            SOAPConnection soapConnection = soapConnectionFactory.createConnection();
+
+            // Send SOAP Message to SOAP Server
+            String url = "http://your-soap-endpoint";
+            SOAPMessage soapResponse = soapConnection.call(createSOAPRequest(), url);
+
+            // Print the SOAP Response
+            System.out.println("Response SOAP Message:");
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            soapResponse.writeTo(out);
+            String responseString = new String(out.toByteArray());
+            System.out.println(responseString);
+
+            soapConnection.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static SOAPMessage createSOAPRequest() throws Exception {
+        // Create a SOAP Message
+        MessageFactory messageFactory = MessageFactory.newInstance();
+        SOAPMessage soapMessage = messageFactory.createMessage();
+
+        // Create SOAP Parts
+        SOAPPart soapPart = soapMessage.getSOAPPart();
+        String serverURI = "http://your-namespace";
+
+        // Create the SOAP Envelope
+        SOAPEnvelope envelope = soapPart.getEnvelope();
+        envelope.addNamespaceDeclaration("example", serverURI);
+
+        // Create the SOAP Body
+        envelope.getBody().addChildElement("YourRequestElement", "example");
+
+        // Add WS-Security Header
+        addSecurityHeader(soapMessage);
+
+        soapMessage.saveChanges();
+
+        // Print the SOAP Request
+        System.out.println("Request SOAP Message:");
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        soapMessage.writeTo(out);
+        String requestString = new String(out.toByteArray());
+        System.out.println(requestString);
+
+        return soapMessage;
+    }
+
+    private static void addSecurityHeader(SOAPMessage soapMessage) throws Exception {
+        // Create WSSecHeader
+        WSSecHeader secHeader = new WSSecHeader();
+        secHeader.insertSecurityHeader(soapMessage.getSOAPPart());
+
+        // Create UsernameToken
+        WSSecUsernameToken usernameToken = new WSSecUsernameToken();
+        usernameToken.setUserInfo("yourUsername", "yourPassword");
+
+        // Add UsernameToken to SOAP Header
+        usernameToken.build(soapMessage.getSOAPPart(), secHeader);
+    }
+}
+
