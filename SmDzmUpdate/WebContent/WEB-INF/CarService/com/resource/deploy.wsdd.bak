@@ -25,10 +25,7 @@
         <parameter qname="pns:sm" xmlns:pns="http://resource.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
         <parameter qname="pns:dzm" xmlns:pns="http://resource.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
       </operation>
-      <operation name="main" qname="operNS:main" xmlns:operNS="http://resource.com" soapAction="" >
-        <parameter qname="pns:args" xmlns:pns="http://resource.com" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
-      </operation>
-      <parameter name="allowedMethods" value="update main"/>
+      <parameter name="allowedMethods" value="update"/>
 
       <typeMapping
         xmlns:ns="http://resource.com"

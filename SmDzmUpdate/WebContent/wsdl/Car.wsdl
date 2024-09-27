@@ -28,38 +28,12 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
      <element name="uniqueId" nillable="true" type="xsd:string"/>
     </sequence>
    </complexType>
-   <element name="main">
-    <complexType>
-     <sequence>
-      <element maxOccurs="unbounded" name="args" type="xsd:string"/>
-     </sequence>
-    </complexType>
-   </element>
-   <element name="mainResponse">
-    <complexType/>
-   </element>
   </schema>
  </wsdl:types>
 
    <wsdl:message name="updateResponse">
 
       <wsdl:part element="impl:updateResponse" name="parameters">
-
-      </wsdl:part>
-
-   </wsdl:message>
-
-   <wsdl:message name="mainRequest">
-
-      <wsdl:part element="impl:main" name="parameters">
-
-      </wsdl:part>
-
-   </wsdl:message>
-
-   <wsdl:message name="mainResponse">
-
-      <wsdl:part element="impl:mainResponse" name="parameters">
 
       </wsdl:part>
 
@@ -87,18 +61,6 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
       </wsdl:operation>
 
-      <wsdl:operation name="main">
-
-         <wsdl:input message="impl:mainRequest" name="mainRequest">
-
-       </wsdl:input>
-
-         <wsdl:output message="impl:mainResponse" name="mainResponse">
-
-       </wsdl:output>
-
-      </wsdl:operation>
-
    </wsdl:portType>
 
    <wsdl:binding name="CarSoapBinding" type="impl:Car">
@@ -116,24 +78,6 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
          </wsdl:input>
 
          <wsdl:output name="updateResponse">
-
-            <wsdlsoap:body use="literal"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="main">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="mainRequest">
-
-            <wsdlsoap:body use="literal"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="mainResponse">
 
             <wsdlsoap:body use="literal"/>
 
