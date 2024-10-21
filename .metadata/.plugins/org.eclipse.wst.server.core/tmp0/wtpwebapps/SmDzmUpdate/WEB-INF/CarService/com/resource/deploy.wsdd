@@ -15,10 +15,7 @@
         <parameter xmlns:pns="http://resource.com" xmlns:tns="http://www.w3.org/2001/XMLSchema" qname="pns:sm" type="tns:string"/>
         <parameter xmlns:pns="http://resource.com" xmlns:tns="http://www.w3.org/2001/XMLSchema" qname="pns:dzm" type="tns:string"/>
       </operation>
-      <operation xmlns:operNS="http://resource.com" name="main" qname="operNS:main" soapAction="">
-        <parameter xmlns:pns="http://resource.com" xmlns:tns="http://www.w3.org/2001/XMLSchema" qname="pns:args" type="tns:string"/>
-      </operation>
-      <parameter name="allowedMethods" value="update main"/>
+      <parameter name="allowedMethods" value="update"/>
 
       <typeMapping xmlns:ns="http://resource.com" qname="ns:Message" type="java:com.resource.Message" serializer="org.apache.axis.encoding.ser.BeanSerializerFactory" deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory" encodingStyle=""/>
   </service>

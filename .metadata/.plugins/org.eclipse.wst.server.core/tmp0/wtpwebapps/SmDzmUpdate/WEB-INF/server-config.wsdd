@@ -7,8 +7,8 @@
   <ns1:parameter name="dotNetSoapEncFix" value="true"/>
   <ns1:parameter name="enableNamespacePrefixOptimization" value="false"/>
   <ns1:parameter name="sendXMLDeclaration" value="true"/>
-  <ns1:parameter name="attachments.implementation" value="org.apache.axis.attachments.AttachmentsImpl"/>
   <ns1:parameter name="sendXsiTypes" value="true"/>
+  <ns1:parameter name="attachments.implementation" value="org.apache.axis.attachments.AttachmentsImpl"/>
   <ns1:requestFlow>
    <ns1:handler type="java:org.apache.axis.handlers.JWSHandler">
     <ns1:parameter name="scope" value="session"/>
@@ -38,10 +38,7 @@
    <ns2:parameter qname="ns1:sm" type="xsd:string" xmlns:xsd="http://www.w3.org/2001/XMLSchema"/>
    <ns2:parameter qname="ns1:dzm" type="xsd:string" xmlns:xsd="http://www.w3.org/2001/XMLSchema"/>
   </ns2:operation>
-  <ns1:operation name="main" qname="ns2:main" soapAction="" xmlns:ns2="http://resource.com">
-   <ns1:parameter qname="ns2:args" type="xsd:string" xmlns:xsd="http://www.w3.org/2001/XMLSchema"/>
-  </ns1:operation>
-  <ns1:parameter name="allowedMethods" value="update main"/>
+  <ns1:parameter name="allowedMethods" value="update"/>
   <ns1:parameter name="typeMappingVersion" value="1.2"/>
   <ns1:parameter name="wsdlPortType" value="Car"/>
   <ns1:parameter name="className" value="com.resource.Car"/>
@@ -49,23 +46,23 @@
   <ns1:parameter name="schemaQualified" value="http://resource.com"/>
   <ns1:parameter name="wsdlTargetNamespace" value="http://resource.com"/>
   <ns1:parameter name="wsdlServiceElement" value="CarService"/>
-  <ns1:typeMapping deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory" encodingStyle="" qname="ns3:Message" serializer="org.apache.axis.encoding.ser.BeanSerializerFactory" type="java:com.resource.Message" xmlns:ns3="http://resource.com"/>
+  <ns1:typeMapping deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory" encodingStyle="" qname="ns2:Message" serializer="org.apache.axis.encoding.ser.BeanSerializerFactory" type="java:com.resource.Message" xmlns:ns2="http://resource.com"/>
  </ns1:service>
  <ns1:service name="ServerPublisher" provider="java:RPC" style="wrapped" use="literal">
-  <ns1:operation name="main" qname="ns4:main" soapAction="" xmlns:ns4="http://resource.com">
-   <ns1:parameter qname="ns4:args" type="xsd:string" xmlns:xsd="http://www.w3.org/2001/XMLSchema"/>
+  <ns1:operation name="main" qname="ns3:main" soapAction="" xmlns:ns3="http://resource.com">
+   <ns1:parameter qname="ns3:args" type="xsd:string" xmlns:xsd="http://www.w3.org/2001/XMLSchema"/>
   </ns1:operation>
-  <ns1:operation name="update" qname="ns5:update" returnQName="ns5:updateReturn" returnType="xsd:string" soapAction="" xmlns:ns5="http://resource.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-   <ns1:parameter qname="ns5:unique_id" type="xsd:string"/>
-   <ns1:parameter qname="ns5:sm" type="xsd:string"/>
-   <ns1:parameter qname="ns5:dzm" type="xsd:string"/>
+  <ns1:operation name="update" qname="ns4:update" returnQName="ns4:updateReturn" returnType="xsd:string" soapAction="" xmlns:ns4="http://resource.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+   <ns1:parameter qname="ns4:unique_id" type="xsd:string"/>
+   <ns1:parameter qname="ns4:sm" type="xsd:string"/>
+   <ns1:parameter qname="ns4:dzm" type="xsd:string"/>
   </ns1:operation>
   <ns1:parameter name="allowedMethods" value="update main"/>
-  <ns1:parameter name="wsdlPortType" value="ServerPublisher"/>
   <ns1:parameter name="typeMappingVersion" value="1.2"/>
-  <ns1:parameter name="schemaQualified" value="http://resource.com"/>
-  <ns1:parameter name="wsdlServicePort" value="ServerPublisher"/>
+  <ns1:parameter name="wsdlPortType" value="ServerPublisher"/>
   <ns1:parameter name="className" value="com.resource.ServerPublisher"/>
+  <ns1:parameter name="wsdlServicePort" value="ServerPublisher"/>
+  <ns1:parameter name="schemaQualified" value="http://resource.com"/>
   <ns1:parameter name="wsdlTargetNamespace" value="http://resource.com"/>
   <ns1:parameter name="wsdlServiceElement" value="ServerPublisherService"/>
  </ns1:service>

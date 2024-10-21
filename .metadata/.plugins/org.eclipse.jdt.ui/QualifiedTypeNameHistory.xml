@@ -6,7 +6,12 @@
 <fullyQualifiedTypeName name="java.util.Date"/>
 <fullyQualifiedTypeName name="javax.xml.ws.Response"/>
 <fullyQualifiedTypeName name="java.util.List"/>
-<fullyQualifiedTypeName name="javax.xml.ws.handler.MessageContext"/>
 <fullyQualifiedTypeName name="java.util.Iterator"/>
 <fullyQualifiedTypeName name="org.apache.ws.security.WSConstants"/>
+<fullyQualifiedTypeName name="java.util.Base64"/>
+<fullyQualifiedTypeName name="com.ibm.wsdl.extensions.http.HTTPConstants"/>
+<fullyQualifiedTypeName name="javax.xml.ws.handler.soap.SOAPMessageContext"/>
+<fullyQualifiedTypeName name="org.apache.axis.message.SOAPFault"/>
+<fullyQualifiedTypeName name="javax.xml.soap.SOAPFactory"/>
+<fullyQualifiedTypeName name="javax.xml.ws.handler.MessageContext"/>
 </qualifiedTypeNameHistroy>

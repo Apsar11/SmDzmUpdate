@@ -1,0 +1,3 @@
+[submodule "project1"]
+	path = project1
+	url = https://github.com/Apsar11/SmDzmUpdate.git
